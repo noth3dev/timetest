@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색상 선택 테이블</title>
+<style>
+  table {
+    border-collapse: collapse;
+    margin: 20px auto;
+  }
+
+  td {
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+    cursor: pointer;
+  }
+
+  .color-picker {
+    width: 200px;
+    position: absolute;
+    border: 1px solid #ccc;
+    background-color: white;
+    z-index: 1000;
+  }
+
+  .color-picker button {
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    border: none;
+    cursor: pointer;
+  }
+  .color-picker-text{
+    width: 30px;
+    margin-left: 10px;
+    font-size: 20px;
+  }
+  #changeLog {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<table>
+  <tbody>
+    <tr>
+      <td id="cell-1">1</td>
+      <td id="cell-2">2</td>
+      <td id="cell-3">3</td>
+      <td id="cell-4">4</td>
+      <td id="cell-5">5</td>
+      <td id="cell-6">6</td>
+    </tr>
+    <!-- 나머지 행들도 동일한 방식으로 추가 -->
+  </tbody>
+</table>
+
+<div id="colorPicker" class="color-picker">
+  <button style="background-color: red;" onclick="selectColor('red')"></button>
+  <div class="color-picker-text">Red</div>
+  <button style="background-color: blue;" onclick="selectColor('blue')"></button>
+  <div class="color-picker-text">Blue</div>
+  <button style="background-color: green;" onclick="selectColor('green')"></button>
+  <div class="color-picker-text">Green</div>
+  <button style="background-color: yellow;" onclick="selectColor('yellow')"></button>
+  <div class="color-picker-text">Yellow</div>
+  <button style="background-color: orange;" onclick="selectColor('orange')"></button>
+  <div class="color-picker-text">Orange</div>
+</div>
+
+<div id="changeLog">
+  <h2>변경된 칸과 메시지</h2>
+  <ul id="logList"></ul>
+</div>
+
+<script>
+  let currentCell;
+  let clickCount = 0;
+
+  function showMessage(color) {
+    switch(color) {
+      case 'red':
+        return "불길한 붉은색";
+      case 'blue':
+        return "깨끗한 푸른색";
+      case 'green':
+        return "신비로운 녹색";
+      case 'yellow':
+        return "따뜻한 노란색";
+      case 'orange':
+        return "화려한 주황색";
+      default:
+        return "흰색";
+    }
+  }
+
+  function showColorPicker(cell) {
+    const colorPicker = document.getElementById('colorPicker');
+    const rect = cell.getBoundingClientRect();
+    colorPicker.style.display = 'block';
+    colorPicker.style.left = `${rect.left}px`;
+    colorPicker.style.top = `${rect.top + window.scrollY + cell.offsetHeight}px`;
+    currentCell = cell;
+  }
+
+  function hideColorPicker() {
+    const colorPicker = document.getElementById('colorPicker');
+    colorPicker.style.display = 'none';
+  }
+
+  function selectColor(color) {
+    if (currentCell.style.backgroundColor === color) {
+      currentCell.style.backgroundColor = '';
+      clickCount = 0;
+    } else {
+      currentCell.style.backgroundColor = color;
+      // 변경된 칸과 메시지 표시
+      showChangeLog(currentCell.id.split('-')[1], color);
+      clickCount = 1;
+    }
+    hideColorPicker();
+  }
+
+  function showChangeLog(cellId, color) {
+    const logList = document.getElementById('logList');
+    const message = showMessage(color);
+    const logItem = document.createElement('li');
+    logItem.textContent = `칸 ${cellId} - ${message}`;
+    logList.appendChild(logItem);
+    document.getElementById('changeLog').style.display = 'block';
+  }
+
+  // 셀을 클릭할 때 팔레트를 표시
+  const cells = document.querySelectorAll('td');
+  cells.forEach(cell => {
+    cell.addEventListener('click', function() {
+      if (clickCount === 1 && currentCell === this) {
+        selectColor('');
+      } else {
+        showColorPicker(this);
+      }
+    });
+  });
+
+  // 색상 선택 팔레트가 활성화된 상태에서 팔레트를 클릭하거나 다른 곳을 클릭하면 팔레트가 사라짐
+  document.addEventListener('click', function(event) {
+    const colorPicker = document.getElementById('colorPicker');
+    if (!colorPicker.contains(event.target) && event.target !== currentCell) {
+      hideColorPicker();
+    }
+  });
+
+</script>
+
+</body>
+</html>
